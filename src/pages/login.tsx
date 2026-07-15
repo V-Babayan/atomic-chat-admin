@@ -1,41 +1,59 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { isAuthed, login } from '~/lib/auth';
+import { isAuthed, setPat, verifyPat } from '~/lib/auth';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Field } from '~/components/ui/label';
 
+const OWNER = import.meta.env.VITE_DATA_REPO_OWNER;
+const REPO = import.meta.env.VITE_DATA_REPO_NAME;
+
 export function LoginPage() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [pat, setPatValue] = useState('');
   const [error, setError] = useState<string | null>(null);
-  console.log(111);
-  
+  const [busy, setBusy] = useState(false);
 
   if (isAuthed()) {
     return <Navigate to="/models" replace />;
   }
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setBusy(true);
     try {
-      if (login(username, password)) {
-        navigate('/models', { replace: true });
-      } else {
-        setError('Invalid credentials');
+      const trimmed = pat.trim();
+      if (!trimmed) {
+        setError('Paste a token');
+        return;
       }
+      const who = await verifyPat(trimmed);
+      if (!who) {
+        setError('GitHub rejected this token');
+        return;
+      }
+      setPat(trimmed);
+      navigate('/models', { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'Verify failed');
+    } finally {
+      setBusy(false);
     }
   }
+
+  const settingsUrl =
+    OWNER && REPO
+      ? `https://github.com/settings/personal-access-tokens/new?target_login=${encodeURIComponent(
+          OWNER,
+        )}&repositories=${encodeURIComponent(REPO)}`
+      : 'https://github.com/settings/personal-access-tokens/new';
 
   return (
     <div className="flex min-h-full items-center justify-center bg-neutral-100 py-12">
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm rounded-xl border border-neutral-200 bg-white p-8 shadow-sm"
+        className="w-full max-w-md rounded-xl border border-neutral-200 bg-white p-8 shadow-sm"
       >
         <h1 className="mb-1 text-xl font-semibold">Sign in</h1>
         <p className="mb-6 text-sm text-neutral-500">
@@ -43,20 +61,34 @@ export function LoginPage() {
         </p>
 
         <div className="flex flex-col gap-4">
-          <Field label="Username">
+          <Field
+            label="GitHub Personal Access Token"
+            hint={
+              <>
+                Create a fine-grained token with{' '}
+                <strong>Contents · Read and write</strong> on{' '}
+                <code>
+                  {OWNER ?? '<owner>'}/{REPO ?? '<data-repo>'}
+                </code>
+                . <a
+                  href={settingsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-neutral-900 underline"
+                >
+                  Open GitHub settings
+                </a>
+                . Token is stored in <code>localStorage</code> and never leaves your browser.
+              </>
+            }
+          >
             <Input
-              value={username}
-              autoComplete="username"
-              onChange={e => setUsername(e.target.value)}
-              autoFocus
-            />
-          </Field>
-          <Field label="Password">
-            <Input
-              value={password}
+              value={pat}
               type="password"
-              autoComplete="current-password"
-              onChange={e => setPassword(e.target.value)}
+              autoComplete="off"
+              placeholder="github_pat_…"
+              onChange={e => setPatValue(e.target.value)}
+              autoFocus
             />
           </Field>
 
@@ -66,7 +98,9 @@ export function LoginPage() {
             </p>
           )}
 
-          <Button type="submit">Sign in</Button>
+          <Button type="submit" disabled={busy}>
+            {busy ? 'Verifying…' : 'Sign in'}
+          </Button>
         </div>
       </form>
     </div>

@@ -1,5 +1,5 @@
 import { Navigate, Outlet, Link, useLocation } from 'react-router-dom';
-import { isAuthed, logout } from '~/lib/auth';
+import { clearPat, isAuthed } from '~/lib/auth';
 import { Button } from '~/components/ui/button';
 
 export function AuthGate() {
@@ -19,8 +19,8 @@ export function AuthGate() {
           <Button
             variant="ghost"
             onClick={() => {
-              logout();
-              window.location.href = '/login';
+              clearPat();
+              window.location.href = `${import.meta.env.BASE_URL}login`;
             }}
           >
             Sign out

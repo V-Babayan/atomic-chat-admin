@@ -3,7 +3,7 @@ import { cn } from '~/utils/cn';
 
 interface FieldProps extends LabelHTMLAttributes<HTMLLabelElement> {
   label: string;
-  hint?: string;
+  hint?: ReactNode;
   error?: string;
   children: ReactNode;
 }

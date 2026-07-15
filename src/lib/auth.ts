@@ -1,24 +1,32 @@
-const AUTH_KEY = 'atomic-admin.authed';
+const PAT_KEY = 'atomic-admin.pat';
+
+export function getPat(): string | null {
+  return localStorage.getItem(PAT_KEY);
+}
+
+export function setPat(pat: string) {
+  localStorage.setItem(PAT_KEY, pat.trim());
+}
+
+export function clearPat() {
+  localStorage.removeItem(PAT_KEY);
+}
 
 export function isAuthed(): boolean {
-  return sessionStorage.getItem(AUTH_KEY) === 'true';
+  return getPat() !== null;
 }
 
-export function login(username: string, password: string): boolean {
-  const expectedUser = import.meta.env.VITE_ADMIN_USERNAME;
-  const expectedPass = import.meta.env.VITE_ADMIN_PASSWORD;
-  if (!expectedUser || !expectedPass) {
-    throw new Error(
-      'VITE_ADMIN_USERNAME / VITE_ADMIN_PASSWORD are not configured. See .env.example.',
-    );
-  }
-  if (username === expectedUser && password === expectedPass) {
-    sessionStorage.setItem(AUTH_KEY, 'true');
-    return true;
-  }
-  return false;
-}
-
-export function logout() {
-  sessionStorage.removeItem(AUTH_KEY);
+export async function verifyPat(pat: string): Promise<{
+  login: string;
+} | null> {
+  const res = await fetch('https://api.github.com/user', {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      Authorization: `Bearer ${pat}`,
+    },
+  });
+  if (!res.ok) return null;
+  const json = (await res.json()) as { login: string };
+  return { login: json.login };
 }

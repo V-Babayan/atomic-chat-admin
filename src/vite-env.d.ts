@@ -1,12 +1,12 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_API_BASE_URL?: string;
   readonly VITE_BASE_PATH?: string;
-  readonly VITE_ADMIN_USERNAME?: string;
-  readonly VITE_ADMIN_PASSWORD?: string;
-  readonly VITE_ADMIN_TOKEN?: string;
   readonly VITE_USE_MOCK?: string;
+  readonly VITE_DATA_REPO_OWNER?: string;
+  readonly VITE_DATA_REPO_NAME?: string;
+  readonly VITE_DATA_FILE_PATH?: string;
+  readonly VITE_DATA_BRANCH?: string;
 }
 
 interface ImportMeta {

@@ -31,12 +31,12 @@ jobs:
 
       - name: Build
         env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
-          VITE_ADMIN_USERNAME: ${{ secrets.VITE_ADMIN_USERNAME }}
-          VITE_ADMIN_PASSWORD: ${{ secrets.VITE_ADMIN_PASSWORD }}
-          VITE_ADMIN_TOKEN: ${{ secrets.VITE_ADMIN_TOKEN }}
           VITE_USE_MOCK: ${{ vars.VITE_USE_MOCK }}
+          VITE_DATA_REPO_OWNER: ${{ vars.VITE_DATA_REPO_OWNER }}
+          VITE_DATA_REPO_NAME: ${{ vars.VITE_DATA_REPO_NAME }}
+          VITE_DATA_FILE_PATH: ${{ vars.VITE_DATA_FILE_PATH }}
+          VITE_DATA_BRANCH: ${{ vars.VITE_DATA_BRANCH }}
         run: yarn build
 
       - uses: actions/upload-pages-artifact@v3
