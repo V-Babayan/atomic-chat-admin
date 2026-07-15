@@ -10,6 +10,8 @@ export function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  console.log(111);
+  
 
   if (isAuthed()) {
     return <Navigate to="/models" replace />;
