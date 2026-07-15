@@ -5,8 +5,8 @@ import { getPat } from '~/lib/auth';
 
 const OWNER = import.meta.env.VITE_DATA_REPO_OWNER;
 const REPO = import.meta.env.VITE_DATA_REPO_NAME;
-const PATH = import.meta.env.VITE_DATA_FILE_PATH ?? 'models.json';
-const BRANCH = import.meta.env.VITE_DATA_BRANCH ?? 'main';
+const PATH = import.meta.env.VITE_DATA_FILE_PATH || 'models.json';
+const BRANCH = import.meta.env.VITE_DATA_BRANCH || 'main';
 
 interface ContentsResponse {
   sha: string;
